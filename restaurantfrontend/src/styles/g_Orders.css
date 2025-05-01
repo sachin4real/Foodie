@@ -1,0 +1,215 @@
+/* Variables for consistent theming */
+:root {
+    --primary-color: #22223b;
+    --primary-light: #4a4e69;
+    --accent-color: #ff7e5f;
+    --text-dark: #333;
+    --text-light: #fff;
+    --border-color: #e0e0e0;
+    --hover-color: #f1f3f8;
+    --shadow: 0 4px 20px rgba(44, 62, 80, 0.08);
+    --border-radius: 12px;
+  }
+  
+  /* Container styling */
+  .orders-container {
+    margin: 2rem auto;
+    padding: 1.5rem;
+    background: var(--text-light);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    width: 100%;
+    max-width: 1135px;
+    transition: all 0.3s ease;
+  }
+  
+  .orders-container h2 {
+    margin-bottom: 1.5rem;
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    position: relative;
+    padding-bottom: 0.5rem;
+  }
+  
+  .orders-container h2::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 3px;
+    width: 50px;
+    background: var(--accent-color);
+    border-radius: 2px;
+  }
+  
+  /* Table wrapper with responsive scroll */
+  .table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    background: #f9fafb;
+    border-radius: calc(var(--border-radius) - 4px);
+    box-shadow: 0 0 0 1px var(--border-color);
+  }
+  
+  /* Table styling */
+  .orders-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+    background: var(--text-light);
+    overflow: hidden;
+  }
+  
+  /* Header styling */
+  .orders-table thead tr {
+    background: var(--primary-color);
+    color: var(--text-light);
+    text-align: left;
+  }
+  
+  .orders-table th {
+    color: var(--text-light);
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    padding: 1rem;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+  }
+  
+  /* Row styling */
+  .orders-table tbody tr {
+    border-bottom: 1px solid var(--border-color);
+    transition: background-color 0.2s ease;
+  }
+  
+  .orders-table tbody tr:last-child {
+    border-bottom: none;
+  }
+  
+  .orders-table tbody tr:nth-child(even) {
+    background-color: #f8f9fa;
+  }
+  
+  .orders-table tbody tr:hover {
+    background: var(--hover-color);
+  }
+  
+  /* Cell styling */
+  .orders-table td {
+    padding: 1rem;
+    color: var(--text-dark);
+    vertical-align: top;
+  }
+  
+  /* Order ID styling - monospace for better readability */
+  .orders-table td:first-child {
+    font-family: monospace;
+    font-size: 0.85rem;
+    opacity: 0.8;
+  }
+  
+  /* Status styling - badges */
+  .orders-table td:nth-child(3) {
+    text-transform: uppercase;
+    font-weight: 600;
+    font-size: 0.8rem;
+    padding: 1rem;
+  }
+  
+  /* Styled pills for status */
+  .orders-table td:nth-child(3) {
+    position: relative;
+  }
+  
+  .orders-table td:nth-child(3)::before {
+    content: "";
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #4caf50;
+    margin-right: 6px;
+  }
+  
+  /* Item list styling */
+  .orders-table td:last-child div {
+    padding: 4px 0;
+    border-bottom: 1px dashed rgba(0, 0, 0, 0.05);
+  }
+  
+  .orders-table td:last-child div:last-child {
+    border-bottom: none;
+  }
+  
+  /* Empty state styling */
+  .orders-container p {
+    text-align: center;
+    padding: 2rem;
+    color: #666;
+    font-style: italic;
+    background: #f9fafb;
+    border-radius: var(--border-radius);
+    border: 1px dashed #ddd;
+  }
+  
+  /* Responsive design */
+  @media (max-width: 1200px) {
+    .orders-container {
+      max-width: 95%;
+      margin: 1.5rem auto;
+    }
+  }
+  
+  @media (max-width: 900px) {
+    .orders-container {
+      padding: 1rem;
+      margin: 1rem auto;
+    }
+    
+    .orders-container h2 {
+      font-size: 1.5rem;
+    }
+    
+    .orders-table th,
+    .orders-table td {
+      padding: 0.75rem 0.5rem;
+      font-size: 0.9rem;
+    }
+  }
+  
+  @media (max-width: 600px) {
+    .orders-container {
+      padding: 0.75rem;
+      margin: 0.5rem auto;
+      border-radius: 8px;
+    }
+    
+    .orders-container h2 {
+      font-size: 1.3rem;
+    }
+    
+    .table-wrapper {
+      border-radius: 6px;
+    }
+    
+    .orders-table {
+      font-size: 0.85rem;
+    }
+    
+    .orders-table th,
+    .orders-table td {
+      padding: 0.5rem 0.4rem;
+    }
+    
+    /* Prioritize important columns on small screens */
+    .orders-table th:first-child,
+    .orders-table td:first-child {
+      max-width: 80px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+  
