@@ -40,8 +40,9 @@ const Orders = () => {
               <tr>
                 <th>Order ID</th>
                 <th>Customer</th>
-                <th>Status</th>
                 <th>Items</th>
+                <th>Delivery Location</th>
+                <th>Status</th>
                 {/* Add more columns as needed */}
               </tr>
             </thead>
@@ -49,8 +50,7 @@ const Orders = () => {
               {orders.map((order) => (
                 <tr key={order.id}>
                   <td>{order.id}</td>
-                  <td>{order.customerId}</td>
-                  <td>{order.status}</td>
+                  <td>{order.fullName}</td>
                   <td>
                     {order.items.map((item, index) => (
                       <div key={index}>
@@ -58,6 +58,8 @@ const Orders = () => {
                       </div>
                     ))}
                   </td>
+                  <td>{order.deliveryLocation}</td>
+                  <td>{order.status}</td>
                 </tr>
               ))}
             </tbody>
