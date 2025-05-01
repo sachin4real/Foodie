@@ -1,4 +1,5 @@
-import { useState } from "react";
+// === src/pages/Login.jsx ===
+import { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
@@ -6,11 +7,18 @@ export default function Login() {
   const [form, setForm] = useState({ username: "", password: "" });
   const navigate = useNavigate();
 
+  // Redirect to dashboard if already logged in
+  useEffect(() => {
+    if (localStorage.getItem("token")) {
+      navigate("/dashboard");
+    }
+  }, [navigate]);
+
   const handleLogin = async () => {
     try {
-      const res = await axios.post("http://localhost:8080/api/auth/login/admin", form);
-      localStorage.setItem("token", res.data.token);
-      navigate("/");
+      const res = await axios.post("http://localhost:8084/api/auth/login/admin", form);
+      localStorage.setItem("token", res.data.token);  // Store token
+      navigate("/dashboard");  // Redirect to dashboard
     } catch (err) {
       alert("Login Failed");
     }

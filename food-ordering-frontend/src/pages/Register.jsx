@@ -3,13 +3,14 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 export default function Register() {
-  const [form, setForm] = useState({ username: "", password: "" });
+  const [form, setForm] = useState({ username: "", password: "", email: "", mobileNumber: "" });
   const navigate = useNavigate();
 
   const handleRegister = async () => {
     try {
+      // Send request to the backend with email and mobileNumber included in the form data
       await axios.post("http://localhost:8084/api/auth/register/customer", form);
-      alert("Registered Successfully! Please Login.");
+      // After successful registration, navigate to the login page
       navigate("/login");
     } catch (err) {
       alert("Registration Failed");
@@ -26,6 +27,20 @@ export default function Register() {
           type="text"
           placeholder="Username"
           onChange={(e) => setForm({ ...form, username: e.target.value })}
+        />
+
+        <input
+          className="w-full p-3 mb-4 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-400"
+          type="email"
+          placeholder="Email"
+          onChange={(e) => setForm({ ...form, email: e.target.value })}
+        />
+
+        <input
+          className="w-full p-3 mb-4 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-400"
+          type="text"
+          placeholder="Mobile Number"
+          onChange={(e) => setForm({ ...form, mobileNumber: e.target.value })}
         />
 
         <input

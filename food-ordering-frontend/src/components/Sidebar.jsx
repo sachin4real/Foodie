@@ -1,5 +1,7 @@
 import { useSidebar } from "../context/SidebarContext";
 import { useNavigate } from "react-router-dom";
+import { useContext } from "react";
+import { UserContext } from "../context/UserContext"; // Import UserContext
 import {
   FiUser, FiBox, FiHeart, FiCreditCard, FiHelpCircle,
   FiGift, FiLogOut
@@ -9,6 +11,7 @@ import { FaCarSide } from "react-icons/fa";
 function Sidebar() {
   const { isSidebarOpen, toggleSidebar } = useSidebar();
   const navigate = useNavigate();
+  const { user } = useContext(UserContext); // Access user data from context
 
   const handleSignOut = () => {
     localStorage.removeItem("token"); // ✅ Clear token
@@ -19,14 +22,11 @@ function Sidebar() {
 
   const menuItems = [
     { label: "Manage Account", icon: <FiUser />, route: "/profile" },
-    { label: "Orders", icon: <FiBox />, route: "/orders" }, // ✅ Correct spelling
+    { label: "Orders", icon: <FiBox />, route: "/orders" },
     { label: "Favorites", icon: <FiHeart /> },
-    { label: "Wallet", icon: <FiCreditCard /> },
     { label: "Help", icon: <FiHelpCircle /> },
-    { label: "Get a Ride", icon: <FaCarSide /> },
     { label: "Promotions", icon: <FiGift /> },
-    { label: "Invite Friends", icon: <FiGift /> },
-    { label: "Sign Out", icon: <FiLogOut />, action: handleSignOut }, // ✅ Proper sign out
+    { label: "Sign Out", icon: <FiLogOut />, action: handleSignOut },
   ];
 
   return (
@@ -40,7 +40,8 @@ function Sidebar() {
 
       <div className="flex flex-col items-center mb-8">
         <div className="w-20 h-20 bg-gray-200 rounded-full mb-2" />
-        <p className="font-semibold text-lg">Isuru</p>
+        {/* Display the user's name here */}
+        <p className="font-semibold text-lg">{user ? user.username : "User"}</p> {/* Show user name */}
         <button
           className="text-orange-500 text-sm"
           onClick={() => {

@@ -3,7 +3,7 @@ import { Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Sidebar from "./components/Sidebar";
 import CartSidebar from "./components/CartSidebar";
-
+import RestaurantDetails from "./pages/RestaurantDetails";
 import Home from "./pages/Home";
 import Orders from "./pages/MyOrders";
 import Profile from "./pages/Profile";
@@ -11,6 +11,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { UserProvider } from "./context/UserContext";
+import ErrorPage from "./pages/ErrorPage";
 
 function App() {
   return (
@@ -34,6 +35,15 @@ function App() {
               </ProtectedRoute>
             }
           />
+
+          <Route
+            path="/restaurant/:id"
+            element={
+              <ProtectedRoute>
+                <RestaurantDetails />
+              </ProtectedRoute>
+            }
+          />
           <Route
             path="/orders"
             element={
@@ -50,6 +60,7 @@ function App() {
               </ProtectedRoute>
             }
           />
+            <Route path="*" element={<ErrorPage />} />
           
         </Routes>
       </div>
