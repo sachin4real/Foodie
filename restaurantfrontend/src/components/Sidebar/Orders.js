@@ -42,6 +42,7 @@ const Orders = () => {
                 <th>Customer</th>
                 <th>Items</th>
                 <th>Delivery Location</th>
+                <th>Price (Rs.)</th>
                 <th>Status</th>
                 {/* Add more columns as needed */}
               </tr>
@@ -59,6 +60,7 @@ const Orders = () => {
                     ))}
                   </td>
                   <td>{order.deliveryLocation}</td>
+                  <td>{order.totalPrice}</td>
                   <td>{order.status}</td>
                 </tr>
               ))}

@@ -111,7 +111,7 @@
   }
   
   /* Status styling - badges */
-  .orders-table td:nth-child(5) {
+  .orders-table td:nth-child(6) {
     text-transform: uppercase;
     font-weight: 600;
     font-size: 0.8rem;
@@ -119,11 +119,11 @@
   }
   
   /* Styled pills for status */
-  .orders-table td:nth-child(5) {
+  .orders-table td:nth-child(6) {
     position: relative;
   }
   
-  .orders-table td:nth-child(5)::before {
+  .orders-table td:nth-child(6)::before {
     content: "";
     display: inline-block;
     width: 8px;
