@@ -1,0 +1,212 @@
+:root {
+  --primary-color: #2a2a2a;
+  --accent-color: #ff6b6b;
+  --background-gradient: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  --glass-bg: rgba(255, 255, 255, 0.9);
+  --shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.restaurant-profile {
+  background: var(--background-gradient);
+  padding: 2.5rem;
+  margin: 2rem auto;
+  max-width: 800px;
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+  background: var(--glass-bg);
+  box-shadow: var(--shadow);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  font-family: 'Inter', sans-serif;
+}
+
+.restaurant-image-container {
+  position: relative;
+  margin-bottom: 2.5rem;
+  border-radius: 15px;
+  overflow: hidden;
+  transition: transform 0.3s ease;
+}
+
+.restaurant-image-container:hover {
+  transform: translateY(-5px);
+}
+
+.restaurant-image {
+  width: 100%;
+  height: 350px;
+  object-fit: cover;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.profile-title {
+  text-align: center;
+  font-size: 2.25rem;
+  background: linear-gradient(45deg, var(--primary-color), var(--accent-color));
+  -webkit-background-clip: text;
+  background-clip: text;  
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 2rem;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+.details-section, .form-section {
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 15px;
+  margin: 1.5rem 0;
+}
+
+.info-group {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  padding: 1rem;
+}
+
+.info-group p {
+  margin: 0;
+  padding: 1rem;
+  background: rgba(249, 249, 249, 0.9);
+  border-radius: 10px;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--primary-color);
+}
+
+.info-group p strong {
+  color: var(--accent-color);
+  min-width: 100px;
+  font-weight: 600;
+}
+
+.time-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin: 1.5rem 0;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="time"],
+input {
+  width: 100%;
+  
+  border: 2px solid rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  background: rgba(255, 255, 255, 0.9);
+}
+
+input:focus {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.2);
+  outline: none;
+}
+
+.button-group {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 2rem;
+}
+
+.button-group button {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.edit-button {
+  background: linear-gradient(45deg, var(--primary-color), #404040);
+  color: white;
+}
+
+.save-button {
+  background: linear-gradient(45deg, #4CAF50, #45a049);
+  color: white;
+}
+
+.cancel-button {
+  background: linear-gradient(45deg, #6c757d, #5a6268);
+  color: white;
+}
+
+.delete-button {
+  background: linear-gradient(45deg, #ff4d4d, #ff1a1a);
+  color: white;
+}
+
+.button-group button:hover {
+  opacity: 0.9;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.status-indicator {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-weight: 600;
+}
+
+.open {
+  background: rgba(76, 175, 80, 0.15);
+  color: #4CAF50;
+}
+
+.closed {
+  background: rgba(255, 77, 77, 0.15);
+  color: #ff4d4d;
+}
+
+@media (max-width: 768px) {
+  .restaurant-profile {
+    width: 90%;
+    padding: 1.5rem;
+  }
+  
+  .info-group {
+    grid-template-columns: 1fr;
+  }
+  
+  .button-group {
+    flex-direction: column;
+  }
+  
+  .button-group button {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* Add icon animations */
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.status-indicator::before {
+  content: '';
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 0.5rem;
+  animation: pulse 2s infinite;
+}
+
+.open::before { background: #4CAF50; }
+.closed::before { background: #ff4d4d; }
