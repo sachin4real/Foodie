@@ -13,7 +13,7 @@ const categories = [
         {categories.map((cat, index) => (
           <button
             key={index}
-            className="px-6 py-2 bg-orange-100 text-orange-700 font-semibold rounded-full whitespace-nowrap hover:bg-orange-200 transition duration-300"
+            className="px-6 py-2 bg-orange-100 text font-semibold rounded-full whitespace-nowrap hover:bg-orange-200 transition duration-300"
           >
             {cat.name}
           </button>
