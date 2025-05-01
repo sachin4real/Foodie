@@ -47,7 +47,7 @@ const RestaurantDetails = () => {
 
       alert("Profile updated successfully");
       setEditMode(false);
-      setRestaurant(formData);
+    
     } catch (error) {
       alert("Update failed");
       console.error(error);

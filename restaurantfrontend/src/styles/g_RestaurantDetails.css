@@ -94,7 +94,7 @@ input[type="text"],
 input[type="email"],
 input[type="time"],
 input {
-  width: 100%;
+  width: 97%;
   
   border: 2px solid rgba(0, 0, 0, 0.1);
   border-radius: 8px;
