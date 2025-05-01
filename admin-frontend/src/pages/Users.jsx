@@ -1,4 +1,3 @@
-// === src/pages/Users.jsx ===
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 
@@ -35,6 +34,7 @@ const Users = () => {
             <tr>
               <th className="py-3 px-6">User Name</th>
               <th className="py-3 px-6">Email</th>
+              <th className="py-3 px-6">Mobile Number</th>
               <th className="py-3 px-6">Status</th>
               <th className="py-3 px-6">Actions</th>
             </tr>
@@ -43,7 +43,7 @@ const Users = () => {
             {/* Show a loading message if data is being fetched */}
             {loading ? (
               <tr>
-                <td colSpan="4" className="py-3 px-6 text-center">Loading...</td>
+                <td colSpan="5" className="py-3 px-6 text-center">Loading...</td>
               </tr>
             ) : (
               // Render users dynamically from the API response
@@ -52,6 +52,7 @@ const Users = () => {
                   <tr key={user.id}>
                     <td className="py-3 px-6">{user.username}</td>
                     <td className="py-3 px-6">{user.email}</td>
+                    <td className="py-3 px-6">{user.mobileNumber}</td>
                     <td className="py-3 px-6">{user.status}</td>
                     <td className="py-3 px-6">
                       <button className="text-orange-500">Deactivate</button>
@@ -60,7 +61,7 @@ const Users = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="4" className="py-3 px-6 text-center">No users found</td>
+                  <td colSpan="5" className="py-3 px-6 text-center">No users found</td>
                 </tr>
               )
             )}
