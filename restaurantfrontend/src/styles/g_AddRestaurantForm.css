@@ -1,0 +1,110 @@
+/* AddRestaurantForm.css */
+
+/* Background: Subtle, food-app inspired gradient */
+body {
+  margin: 0;
+  padding: 0;
+  background: linear-gradient(120deg, #fffbe7 0%, #ffe5ec 100%);
+  font-family: "Inter", "Segoe UI", Arial, sans-serif;
+}
+
+/* Form Container: Card style, shadow, rounded, centered */
+.form-container {
+  max-width: 480px;
+  margin: 60px auto;
+  padding: 36px 32px 28px 32px;
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 8px 36px rgba(44, 62, 80, 0.12);
+  transition: box-shadow 0.2s;
+}
+
+.form-container h2 {
+  text-align: center;
+  margin-bottom: 32px;
+  color: #22223b;
+  font-size: 2rem;
+  letter-spacing: 0.5px;
+  font-weight: 700;
+}
+
+.form-group {
+  margin-bottom: 22px;
+}
+
+.form-container label {
+  display: block;
+  margin-bottom: 7px;
+  color: #4e4e50;
+  font-weight: 600;
+  font-size: 1rem;
+  letter-spacing: 0.2px;
+}
+
+/* Input fields: Soft background, clear border, rounded, focus effect */
+.form-container input {
+  width: 100%;
+  padding: 13px 14px;
+  border: 1.5px solid #e0e0e0;
+  border-radius: 10px;
+  font-size: 1rem;
+  background: #faf9f6;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-container input:focus {
+  border-color: #ff6f61; /* Uber Eats-style accent */
+  box-shadow: 0 0 0 2px #ffe5ec;
+  background: #fff;
+  outline: none;
+}
+
+/* Error message: Clear and accessible */
+.form-container .error {
+  color: #e63946;
+  font-size: 0.93rem;
+  margin-top: 4px;
+  font-style: italic;
+  letter-spacing: 0.1px;
+}
+
+/* Submit Button: Bold, clear, food-app color scheme */
+.submit-btn {
+  width: 100%;
+  padding: 15px 0;
+  margin-top: 6px;
+  background: linear-gradient(90deg, #ff6f61 0%, #ff914d 100%);
+  border: none;
+  color: #fff;
+  font-weight: 700;
+  font-size: 1.1rem;
+  border-radius: 12px;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  box-shadow: 0 3px 12px rgba(255, 111, 97, 0.09);
+  transition: background 0.2s, transform 0.1s;
+}
+
+.submit-btn:hover {
+  background: linear-gradient(90deg, #ff914d 0%, #ff6f61 100%);
+  transform: translateY(-2px) scale(1.015);
+}
+
+/* Responsive: Mobile-friendly adjustments */
+@media (max-width: 600px) {
+  .form-container {
+    padding: 22px 8px 18px 8px;
+    margin: 32px 6px;
+    border-radius: 12px;
+  }
+
+  .form-container h2 {
+    font-size: 1.25rem;
+    margin-bottom: 20px;
+  }
+
+  .submit-btn {
+    font-size: 1rem;
+    padding: 13px 0;
+  }
+}

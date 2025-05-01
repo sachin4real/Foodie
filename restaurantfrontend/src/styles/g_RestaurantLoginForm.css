@@ -1,0 +1,107 @@
+.rlf-container {
+    max-width: 370px;
+    margin: 2.5rem auto;
+    padding: 2.2rem 2rem 1.5rem 2rem;
+    background: rgba(255, 255, 255, 0.93);
+    border-radius: 18px;
+    box-shadow: 0 8px 32px rgba(108, 99, 255, 0.13);
+    border: 1px solid #ececec;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  
+  .rlf-title {
+    font-size: 2rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 1rem;
+    background: linear-gradient(90deg, #6c63ff, #ff6b6b 80%);
+    -webkit-background-clip: text;
+    background-clip: text;  
+    -webkit-text-fill-color: transparent;
+  }
+  
+  .rlf-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  
+  .rlf-label {
+    font-size: 1rem;
+    font-weight: 500;
+    color: #333;
+  }
+  
+  .rlf-input {
+    padding: 0.7rem 1rem;
+    border: 1.5px solid #e0e0e0;
+    border-radius: 7px;
+    font-size: 1rem;
+    background: #fafaff;
+    transition: border 0.2s, box-shadow 0.2s;
+  }
+  
+  .rlf-input:focus {
+    border-color: #6c63ff;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(108, 99, 255, 0.12);
+  }
+  
+  .rlf-btn {
+    width: 100%;
+    padding: 0.85rem;
+    font-size: 1rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 7px;
+    background: linear-gradient(90deg, #6c63ff, #ff6b6b 90%);
+    color: #fff;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+    margin-top: 0.5rem;
+    box-shadow: 0 2px 8px rgba(108, 99, 255, 0.07);
+  }
+  
+  .rlf-btn:hover {
+    background: linear-gradient(90deg, #5a54e8, #fa5252 90%);
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 4px 16px rgba(108, 99, 255, 0.13);
+  }
+  
+  .rlf-btn-secondary {
+    background: #fff;
+    color: #6c63ff;
+    border: 1.5px solid #6c63ff;
+    margin-top: 1rem;
+    font-weight: 500;
+    transition: background 0.2s, color 0.2s;
+  }
+  
+  .rlf-btn-secondary:hover {
+    background: #6c63ff;
+    color: #fff;
+  }
+  
+  .rlf-error {
+    color: #ff4d4f;
+    background: #fff0f0;
+    border: 1px solid #ffeaea;
+    border-radius: 6px;
+    padding: 0.7rem 1rem;
+    text-align: center;
+    font-size: 0.96rem;
+    margin-top: 0.5rem;
+  }
+  
+  @media (max-width: 500px) {
+    .rlf-container {
+      padding: 1.2rem 0.5rem 1rem 0.5rem;
+      max-width: 98vw;
+    }
+    .rlf-title {
+      font-size: 1.4rem;
+    }
+  }
+  
