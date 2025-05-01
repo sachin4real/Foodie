@@ -1,3 +1,4 @@
+// === src/pages/RegisterAdmin.jsx ===
 import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -8,9 +9,9 @@ export default function RegisterAdmin() {
 
   const handleRegister = async () => {
     try {
-      await axios.post("http://localhost:8080/api/auth/register/admin", form);
+      await axios.post("http://localhost:8084/api/auth/register/admin", form);
       alert("Admin Registered Successfully");
-      navigate("/login/admin");
+      navigate("/login");  // Navigate to login after successful registration
     } catch (err) {
       alert("Registration Failed");
     }
