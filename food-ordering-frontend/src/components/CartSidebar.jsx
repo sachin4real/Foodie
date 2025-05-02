@@ -89,12 +89,12 @@ function CartSidebar() {
       const paymentData = await paymentRes.json();
 
       if (paymentData?.status === "SUCCESS" && paymentData.sessionUrl) {
-        // Filter out the selected group items from the cart
+        const selectedIds = selectedGroup.map(i => i.id + i.restaurantName);
         const remainingItems = cartItems.filter(
-          (item) => item.restaurantName !== restaurantName
+          item => !selectedIds.includes(item.id + item.restaurantName)
         );
         localStorage.setItem("cart", JSON.stringify(remainingItems));
-        clearCart(); // Optionally clear the cart context
+        clearCart();
         window.location.href = paymentData.sessionUrl;
       } else {
         alert("Failed to initiate payment session");
@@ -117,43 +117,61 @@ function CartSidebar() {
 
   return (
     <>
-      <div className={`fixed top-0 right-0 bg-white shadow-lg w-80 h-full p-5 flex flex-col transition-transform duration-300 z-30 ${isCartOpen ? "translate-x-0" : "translate-x-full"}`}>
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-bold text-orange-500">My Cart</h2>
-          <button onClick={toggleCart} className="p-2 bg-orange-500 text-white rounded hover:bg-orange-600">Close</button>
+      <div className={`fixed top-0 right-0 bg-white shadow-2xl w-[450px] h-full p-8 flex flex-col transition-transform duration-300 z-50 border-l ${isCartOpen ? "translate-x-0" : "translate-x-full"}`}>
+        <div className="flex justify-between items-center mb-8">
+          <h2 className="text-3xl font-bold text-orange-600">🛒 My Cart</h2>
+          <button
+            onClick={toggleCart}
+            className="px-5 py-2 bg-orange-700 text-white rounded-lg hover:bg-orange-600 shadow-sm transition-all"
+          >
+            Close
+          </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto space-y-6">
           {cartItems.length === 0 ? (
-            <p className="text-gray-500 text-center mt-10">Your cart is empty 🛒</p>
+            <p className="text-black-500 text-center mt-24 text-lg " >Your cart is empty 🛍️</p>
           ) : (
             <ul className="space-y-4">
               {Object.entries(groupedItems).map(([restaurant, items]) => (
-                <div key={restaurant} className="mb-6 border-b pb-4">
-                  <h3 className="text-lg font-semibold text-orange-600 mb-2">{restaurant}</h3>
+                <div key={restaurant} className="p-5 bg-gray-50 rounded-xl shadow-inner border">
+                  <h3 className="text-xl font-semibold text-orange-600 border-b pb-3 mb-4">{restaurant}</h3>
                   <ul className="space-y-4">
                     {items.map((item) => (
-                      <li key={item.id} className="bg-gray-100 p-3 rounded-md hover:bg-gray-200 transition">
-                        <div className="flex justify-between items-center">
-                          <span className="font-medium text-gray-800">{item.name}</span>
-                          <button onClick={() => removeFromCart(item.id)} className="text-red-500 text-sm font-semibold hover:underline">Remove</button>
+                      <li key={item.id} className="bg-white p-5 rounded-lg shadow hover:shadow-md transition-all border border-gray-100">
+                        <div className="flex justify-between items-center mb-5 h-1 mt-1">
+                          <span className="font-medium text-gray-800 text-lg">{item.name}</span>
+                          <button
+                            onClick={() => removeFromCart(item.id, item.restaurantName)}
+                            className="bg-red-700 text-white text-xs px-3 py-1 rounded-md hover:bg-red-800 transition"
+                          >
+                            Remove
+                          </button>
                         </div>
-                        <div className="flex justify-between items-center mt-2">
-                          <div className="flex items-center gap-2">
-                            <button onClick={() => item.quantity > 1 && decreaseQty(item.id)} className="px-2 py-1 bg-gray-300 text-gray-800 rounded disabled:opacity-50" disabled={item.quantity === 1}>-</button>
-                            <span>{item.quantity}</span>
-                            <button onClick={() => increaseQty(item.id)} className="px-2 py-1 bg-gray-300 text-gray-800 rounded">+</button>
+
+                        <div className="flex justify-between items-center h-10">
+                          <div className="flex items-center gap-3">
+                            <button
+                              onClick={() => item.quantity > 1 && decreaseQty(item.id, item.restaurantName)}
+                              className="w-8 h-8 rounded-full bg-gray-200 hover:bg-gray-300 text-lg font-bold disabled:opacity-50"
+                              disabled={item.quantity === 1}
+                            >−</button>
+                            <span className="text-base">{item.quantity}</span>
+                            <button
+                              onClick={() => increaseQty(item.id, item.restaurantName)}
+                              className="w-8 h-8 rounded-full bg-gray-200 hover:bg-gray-300 text-lg font-bold"
+                            >+</button>
                           </div>
-                          <span className="text-orange-500 font-bold">Rs. {(item.price * item.quantity).toFixed(2)}</span>
+                          <span className="text-orange-600 font-semibold text-lg">Rs. {(item.price * item.quantity).toFixed(2)}</span>
                         </div>
                       </li>
                     ))}
                   </ul>
 
-                  <div className="mt-4">
-                    <div className="flex justify-between mb-2">
-                      <span className="font-semibold text-gray-700">Total:</span>
-                      <span className="font-bold text-lg text-orange-500">Rs. {calculateGroupTotal(items)}</span>
+                  <div className="mt-6 ">
+                    <div className="flex justify-between mb-3 text-black-800 text-l font-semibold text-base ml-2 tracking-wider">
+                      <span>Total</span>
+                      <span className="pr-2 text-black-500 text-l font-bold">Rs. {calculateGroupTotal(items)}</span>
                     </div>
 
                     <button
@@ -161,7 +179,7 @@ function CartSidebar() {
                         setSelectedGroup(items);
                         setShowPopup(true);
                       }}
-                      className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 rounded-lg transition"
+                      className="w-full bg-orange-700 hover:bg-orange-600 text-white font-bold py-3 rounded-xl shadow-lg transition tracking-wider"
                     >
                       Proceed to Checkout
                     </button>
@@ -175,16 +193,17 @@ function CartSidebar() {
 
       {/* Popup Modal */}
       {showPopup && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-40">
-          <div className="bg-white p-6 rounded-lg w-96 shadow-lg space-y-4">
-            <h3 className="text-xl font-bold text-orange-500">Checkout Details</h3>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[60]">
+          <div className="bg-white p-8 rounded-2xl shadow-2xl w-[420px] space-y-5 border border-gray-100">
+            <h3 className="text-2xl font-bold text-orange-500 text-center">Checkout Details</h3>
+
             <input
               type="email"
               name="email"
               placeholder="Email"
               value={formData.email}
               onChange={handleInputChange}
-              className="w-full border p-2 rounded"
+              className="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none"
             />
             <input
               type="text"
@@ -192,22 +211,36 @@ function CartSidebar() {
               placeholder="Full Name"
               value={formData.fullName}
               onChange={handleInputChange}
-              className="w-full border p-2 rounded"
+              className="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none"
             />
             <textarea
               name="deliveryLocation"
               placeholder="Delivery Location"
               value={formData.deliveryLocation}
               onChange={handleInputChange}
-              className="w-full border p-2 rounded"
+              className="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none"
+              rows={3}
             />
-            <div className="flex justify-end space-x-3 mt-4">
-              <button onClick={() => setShowPopup(false)} className="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400">Cancel</button>
-              <button onClick={handleConfirmAndCheckout} className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded">Confirm & Submit</button>
+
+            <div className="flex justify-end gap-4 mt-4">
+              <button
+                onClick={() => setShowPopup(false)}
+                className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-5 py-2 rounded-lg transition"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmAndCheckout}
+                className="bg-orange-500 hover:bg-orange-600 text-white font-semibold px-6 py-2.5 rounded-lg transition shadow-lg"
+              >
+                Confirm & Pay
+              </button>
             </div>
           </div>
         </div>
       )}
+
+
     </>
   );
 }
