@@ -1,107 +1,158 @@
-.rlf-container {
-    max-width: 370px;
-    margin: 2.5rem auto;
-    padding: 2.2rem 2rem 1.5rem 2rem;
-    background: rgba(255, 255, 255, 0.93);
-    border-radius: 18px;
-    box-shadow: 0 8px 32px rgba(108, 99, 255, 0.13);
-    border: 1px solid #ececec;
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
+.login-bg-food {
+  min-height: 100vh;
+  background: #f7f6fa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.food-decor {
+  position: absolute;
+  z-index: 1;
+  border-radius: 50%;
+  box-shadow: 0 6px 32px rgba(108,99,255,0.10);
+  opacity: 0.93;
+  pointer-events: none;
+}
+
+.food-top-left {
+  top: -60px;
+  left: -60px;
+  width: 220px;
+  height: 220px;
+  object-fit: cover;
+}
+.food-bottom-left {
+  bottom: -60px;
+  left: -40px;
+  width: 170px;
+  height: 170px;
+  object-fit: cover;
+}
+.food-top-right {
+  top: -55px;
+  right: -65px;
+  width: 180px;
+  height: 180px;
+  object-fit: cover;
+}
+.food-bottom-right {
+  bottom: -50px;
+  right: -50px;
+  width: 140px;
+  height: 140px;
+  object-fit: cover;
+}
+
+.login-food-card {
+  position: relative;
+  z-index: 2;
+  background: #fff;
+  border-radius: 22px;
+  box-shadow: 0 8px 32px rgba(108,99,255,0.13);
+  padding: 2.5rem 2.2rem 2rem 2.2rem;
+  width: 100%;
+  max-width: 370px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.3rem;
+  align-items: center;
+}
+
+.login-title-food {
+  font-size: 2rem;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 0.7rem;
+  color: #d72660;
+  letter-spacing: 0.5px;
+}
+
+.login-group-food {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.login-group-food label {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #333;
+}
+
+.login-group-food input {
+  padding: 0.7rem 1rem;
+  border: 1.5px solid #e0e0e0;
+  border-radius: 7px;
+  font-size: 1rem;
+  background: #fafaff;
+  transition: border 0.2s, box-shadow 0.2s;
+}
+
+.login-group-food input:focus {
+  border-color: #d72660;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(215,38,96,0.12);
+}
+
+.login-btn-food {
+  width: 100%;
+  padding: 0.85rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 7px;
+  background: linear-gradient(90deg, #d72660, #fbbf24 90%);
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+  margin-top: 0.5rem;
+  box-shadow: 0 2px 8px rgba(108,99,255,0.07);
+}
+
+.login-btn-food:hover {
+  background: linear-gradient(90deg, #b91c50, #f59e42 90%);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 4px 16px rgba(108,99,255,0.13);
+}
+
+.login-btn-secondary-food {
+  background: #fff;
+  color: #d72660;
+  border: 1.5px solid #d72660;
+  margin-top: 1rem;
+  font-weight: 500;
+  transition: background 0.2s, color 0.2s;
+  width: 100%;
+  border-radius: 7px;
+  padding: 0.85rem;
+}
+
+.login-btn-secondary-food:hover {
+  background: #d72660;
+  color: #fff;
+}
+
+.login-error-food {
+  color: #ff4d4f;
+  background: #fff0f0;
+  border: 1px solid #ffeaea;
+  border-radius: 6px;
+  padding: 0.7rem 1rem;
+  text-align: center;
+  font-size: 0.96rem;
+  margin-top: 0.5rem;
+}
+
+@media (max-width: 700px) {
+  .food-decor-left, .food-decor-right {
+    display: none;
   }
-  
-  .rlf-title {
-    font-size: 2rem;
-    font-weight: 700;
-    text-align: center;
-    margin-bottom: 1rem;
-    background: linear-gradient(90deg, #6c63ff, #ff6b6b 80%);
-    -webkit-background-clip: text;
-    background-clip: text;  
-    -webkit-text-fill-color: transparent;
+  .login-food-card {
+    max-width: 99vw;
+    padding: 1.2rem 0.5rem 1rem 0.5rem;
   }
-  
-  .rlf-group {
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
-  }
-  
-  .rlf-label {
-    font-size: 1rem;
-    font-weight: 500;
-    color: #333;
-  }
-  
-  .rlf-input {
-    padding: 0.7rem 1rem;
-    border: 1.5px solid #e0e0e0;
-    border-radius: 7px;
-    font-size: 1rem;
-    background: #fafaff;
-    transition: border 0.2s, box-shadow 0.2s;
-  }
-  
-  .rlf-input:focus {
-    border-color: #6c63ff;
-    outline: none;
-    box-shadow: 0 0 0 2px rgba(108, 99, 255, 0.12);
-  }
-  
-  .rlf-btn {
-    width: 100%;
-    padding: 0.85rem;
-    font-size: 1rem;
-    font-weight: 600;
-    border: none;
-    border-radius: 7px;
-    background: linear-gradient(90deg, #6c63ff, #ff6b6b 90%);
-    color: #fff;
-    cursor: pointer;
-    transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
-    margin-top: 0.5rem;
-    box-shadow: 0 2px 8px rgba(108, 99, 255, 0.07);
-  }
-  
-  .rlf-btn:hover {
-    background: linear-gradient(90deg, #5a54e8, #fa5252 90%);
-    transform: translateY(-2px) scale(1.02);
-    box-shadow: 0 4px 16px rgba(108, 99, 255, 0.13);
-  }
-  
-  .rlf-btn-secondary {
-    background: #fff;
-    color: #6c63ff;
-    border: 1.5px solid #6c63ff;
-    margin-top: 1rem;
-    font-weight: 500;
-    transition: background 0.2s, color 0.2s;
-  }
-  
-  .rlf-btn-secondary:hover {
-    background: #6c63ff;
-    color: #fff;
-  }
-  
-  .rlf-error {
-    color: #ff4d4f;
-    background: #fff0f0;
-    border: 1px solid #ffeaea;
-    border-radius: 6px;
-    padding: 0.7rem 1rem;
-    text-align: center;
-    font-size: 0.96rem;
-    margin-top: 0.5rem;
-  }
-  
-  @media (max-width: 500px) {
-    .rlf-container {
-      padding: 1.2rem 0.5rem 1rem 0.5rem;
-      max-width: 98vw;
-    }
-    .rlf-title {
-      font-size: 1.4rem;
-    }
-  }
-  
+}

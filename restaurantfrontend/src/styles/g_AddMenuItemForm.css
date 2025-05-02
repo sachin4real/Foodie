@@ -27,7 +27,7 @@ body {
   /* Input and textarea styling */
   .menu-form input,
   .menu-form textarea {
-    width: 100%;
+    width: 97%;
     margin-bottom: 15px;
     padding: 12px 14px;
     border: 1px solid #ccc;

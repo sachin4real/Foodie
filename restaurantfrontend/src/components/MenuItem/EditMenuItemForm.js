@@ -1,6 +1,6 @@
-// EditMenuItemForm.jsx
 import React, { useState } from "react";
 import axios from "axios";
+import "../../styles/g_EditMenuItemForm.css";
 
 const EditMenuItemForm = ({ item, onClose, onUpdate }) => {
   const [formData, setFormData] = useState({ ...item });
@@ -21,8 +21,8 @@ const EditMenuItemForm = ({ item, onClose, onUpdate }) => {
 
       await axios.put(`http://localhost:8081/api/menu/update/${item.id}`, updatedItem);
       alert("Menu item updated!");
-      onUpdate(); // reload list
-      onClose();  // close modal or form
+      onUpdate();
+      onClose();
     } catch (err) {
       console.error("Update error:", err);
       alert("Failed to update item.");
@@ -30,16 +30,46 @@ const EditMenuItemForm = ({ item, onClose, onUpdate }) => {
   };
 
   return (
-    <div className="edit-form-container">
-      <h3>Edit Menu Item</h3>
-      <form onSubmit={handleSubmit} className="menu-form">
-        <input name="name" value={formData.name} onChange={handleChange} required />
-        <textarea name="description" value={formData.description} onChange={handleChange} required />
-        <input name="price" value={formData.price} onChange={handleChange} required />
-        <input name="imagePath" value={formData.imagePath} onChange={handleChange} required />
-        <button type="submit">Update</button>
-        <button type="button" onClick={onClose}>Cancel</button>
-      </form>
+    <div className="modal-overlay">
+      <div className="modal-content">
+        <h3>Edit Menu Item</h3>
+        <form onSubmit={handleSubmit} className="menu-form">
+          <input
+            name="name"
+            value={formData.name}
+            onChange={handleChange}
+            placeholder="Item Name"
+            required
+          />
+          <textarea
+            name="description"
+            value={formData.description}
+            onChange={handleChange}
+            placeholder="Description"
+            required
+          />
+          <input
+            name="price"
+            value={formData.price}
+            onChange={handleChange}
+            placeholder="Price"
+            required
+          />
+          <input
+            name="imagePath"
+            value={formData.imagePath}
+            onChange={handleChange}
+            placeholder="Image URL"
+            required
+          />
+          <div className="form-buttons">
+            <button type="submit">Update</button>
+            <button type="button" onClick={onClose} className="cancel-btn">
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 };

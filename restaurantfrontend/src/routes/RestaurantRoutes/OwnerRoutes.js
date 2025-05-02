@@ -5,6 +5,7 @@ import Sidebar from "../../components/Sidebar/Sidebar";
 import Dashboard from "../../components/Dashboard/Dashboard";
 import RestaurantDetails from "../../components/Restaurants/RestaurantDetails";
 import AddMenuItemForm from "../../components/MenuItem/AddMenuItemForm";
+import Orders from "../../components/Sidebar/Orders";
 
 
 const OwnerRoutes = () => {
@@ -15,6 +16,7 @@ const OwnerRoutes = () => {
         <Routes>
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="details" element={<RestaurantDetails />} />
+          <Route path="orders" element={<Orders />} />
           <Route
   path="menu"
   element={
