@@ -32,8 +32,8 @@ function FoodCard({ item }) {
 
         {/* Price + Add to Cart */}
         <div className="mt-4 flex items-center justify-between">
-          <span className="text-orange-500 font-bold text-md">Rs. {item.price}</span>
-          <button onClick={handleAddToCart} className="px-4 py-2 bg-orange-500 text-white rounded-full text-sm hover:bg-orange-600 transition">
+          <span className="text-orange-300 font-bold text-md">Rs. {item.price}</span>
+          <button onClick={handleAddToCart} className="px-4 py-2 bg-green-500 text-white rounded-full text-sm hover:bg-orange-600 transition">
             Add
           </button>
         </div>
