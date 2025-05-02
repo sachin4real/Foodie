@@ -37,8 +37,12 @@ function Profile() {
               <p className="text-lg font-semibold text-gray-700">{user.username}</p>
             </div>
             <div>
-              <label className="text-sm text-gray-500">Role</label>
-              <p className="text-lg font-semibold text-gray-700">{user.role}</p>
+              <label className="text-sm text-gray-500">Email</label>
+              <p className="text-lg font-semibold text-gray-700">{user.email}</p>
+            </div>
+            <div>
+              <label className="text-sm text-gray-500">Mobile Number</label>
+              <p className="text-lg font-semibold text-gray-700">{user.mobileNumber}</p>
             </div>
           </div>
         ) : (

@@ -18,10 +18,10 @@ function Navbar() {
       </button>
 
       {/* Center Brand */}
-      <div className="flex-1 flex justify-center mx-4">
+      <div className="flex-1 flex  mx-4">
         <Link to="/" className="flex items-center space-x-2">
           <h1 className="text-3xl font-extrabold text-gray-800 hover:text-orange-600 transition">
-            <span className="text-orange-500">Foodie</span>
+            <span className="text-orange-500">Foodie.LK</span>
           </h1>
         </Link>
       </div>
@@ -41,12 +41,12 @@ function Navbar() {
         <div className="relative">
           <button
             onClick={toggleCart}
-            className="p-2 bg-orange-500 text-white rounded-full hover:bg-orange-600 transition"
+            className="p-2 bg-orange-200 text-white rounded-full hover:bg-orange-300 transition"
           >
             🛒
           </button>
           {cartItems.length > 0 && (
-            <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+            <span className="absolute -top-2 -right-2 bg-red-200 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
               {cartItems.length}
             </span>
           )}
