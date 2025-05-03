@@ -1,44 +1,71 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { Client } from '@stomp/stompjs';
+import RiderNotification from './RiderNotification';
 
-const RiderNotification = ({ delivery, onClose, onAccept, timer }) => {
-  const earnings = (delivery.orderAmount * 0.05).toFixed(2);
+const RiderNotificationContainer = () => {
+  const [notifications, setNotifications] = useState([]);
+  const [socketConnected, setSocketConnected] = useState(false);
+
+  useEffect(() => {
+    const client = new Client({
+      brokerURL: 'ws://localhost:8083/ws',  
+      onConnect: () => {
+        console.log('WebSocket connected');
+        setSocketConnected(true);
+        // Subscribe to the delivery notifications topic
+        client.subscribe('/topic/delivery', (message) => {
+          const deliveryNotification = JSON.parse(message.body);
+          setNotifications((prevNotifications) => [
+            ...prevNotifications,
+            deliveryNotification,
+          ]);
+        });
+      },
+      onDisconnect: () => {
+        console.log('WebSocket disconnected');
+        setSocketConnected(false);
+      },
+      debug: (str) => {
+        console.log(str);
+      },
+    });
+
+    client.activate();
+
+    return () => {
+      client.deactivate();
+    };
+  }, []);
+
+  const handleAccept = (deliveryId) => {
+    // Handle accepting the delivery
+    console.log(`Delivery ${deliveryId} accepted`);
+    // Implement logic for accepting the delivery here
+  };
+
+  const handleDecline = (deliveryId) => {
+    // Handle declining the delivery
+    console.log(`Delivery ${deliveryId} declined`);
+    // Implement logic for declining the delivery here
+  };
 
   return (
-    <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 bg-white p-6 rounded-xl shadow-xl w-80 z-50">
-      <h3 className="text-xl font-bold text-center mb-4">🚨 New Delivery Assigned</h3>
-      
-      <div className="space-y-1 text-gray-700 text-sm">
-        <p><strong>Order ID:</strong> {delivery.orderId}</p>
-        <p><strong>Restaurant:</strong> {delivery.location}</p>
-        <p><strong>Customer Address:</strong> {delivery.customerAddress}</p>
-        <p><strong>Status:</strong> {delivery.status}</p>
-        <p><strong>Delivery Time:</strong> {new Date(delivery.deliveryTime).toLocaleString()}</p>
-        <p><strong>💵 Earning:</strong> ${earnings}</p>
-        <p><strong>⏳ Time Left:</strong> {timer}s</p>
-      </div>
-
-      <div className="flex gap-4 mt-6">
-        <button
-          onClick={onAccept}
-          className="flex-1 py-2 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-lg"
-        >
-          Accept
-        </button>
-        <button
-          onClick={onClose}
-          className="flex-1 py-2 bg-red-500 hover:bg-red-600 text-white font-semibold rounded-lg"
-        >
-          Decline
-        </button>
-      </div>
-
-      {timer <= 0 && (
-        <div className="text-center text-red-500 font-semibold mt-4">
-          Time's up! 🕒
-        </div>
+    <div>
+      {socketConnected ? (
+        notifications.map((delivery, index) => (
+          <RiderNotification
+            key={index}
+            delivery={delivery}
+            onAccept={() => handleAccept(delivery.orderId)}
+            onClose={() => handleDecline(delivery.orderId)}
+            timer={30} // Example timer, replace with actual logic
+          />
+        ))
+      ) : (
+        <p>Connecting to WebSocket...</p>
       )}
     </div>
   );
 };
 
-export default RiderNotification;
+export default RiderNotificationContainer;
