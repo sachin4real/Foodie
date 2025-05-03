@@ -4,13 +4,15 @@ import "../../styles/g_MenuItemTable.css";
 import EditMenuItemForm from "./EditMenuItemForm";
 import AddMenuItemForm from "./AddMenuItemForm";
 
-const MenuItemTable = ({ restaurantId , restaurantName}) => {
+const MenuItemTable = ({ restaurantId, restaurantName, showAddForm }) => {
   const [menuItems, setMenuItems] = useState([]);
   const [editingItem, setEditingItem] = useState(null);
 
   const fetchMenuItems = useCallback(async () => {
     try {
-      const response = await axios.get(`http://localhost:8081/api/menu/${restaurantId}`);
+      const response = await axios.get(
+        `http://localhost:8081/api/menu/${restaurantId}`
+      );
       setMenuItems(response.data);
     } catch (error) {
       console.error("Error fetching menu items:", error);
@@ -22,11 +24,13 @@ const MenuItemTable = ({ restaurantId , restaurantName}) => {
   }, [fetchMenuItems]);
 
   const handleDelete = async (id) => {
-    const confirmDelete = window.confirm("Are you sure you want to delete this item?");
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this item?"
+    );
     if (!confirmDelete) return;
     try {
       await axios.delete(`http://localhost:8081/api/menu/${id}`);
-      setMenuItems(menuItems.filter(item => item.id !== id));
+      setMenuItems(menuItems.filter((item) => item.id !== id));
     } catch (error) {
       console.error("Delete error:", error);
       alert("Failed to delete item.");
@@ -36,7 +40,12 @@ const MenuItemTable = ({ restaurantId , restaurantName}) => {
   return (
     <div className="table-container">
       <h2>🍽️ Menu Items</h2>
-      <AddMenuItemForm restaurantId={restaurantId} restaurantName={restaurantName}></AddMenuItemForm>
+      {showAddForm && (
+      <AddMenuItemForm
+        restaurantId={restaurantId}
+        restaurantName={restaurantName}
+      />
+      )}
       {editingItem && (
         <EditMenuItemForm
           item={editingItem}
@@ -56,15 +65,23 @@ const MenuItemTable = ({ restaurantId , restaurantName}) => {
             </tr>
           </thead>
           <tbody>
-            {menuItems.map(item => (
+            {menuItems.map((item) => (
               <tr key={item.id}>
-                <td><img src={item.imagePath} alt={item.name} className="item-image" /></td>
+                <td>
+                  <img
+                    src={item.imagePath}
+                    alt={item.name}
+                    className="item-image"
+                  />
+                </td>
                 <td>{item.name}</td>
                 <td>{item.description}</td>
                 <td>Rs. {item.price}</td>
                 <td className="actions-cell">
                   <button onClick={() => setEditingItem(item)}>✏️ Edit</button>
-                  <button onClick={() => handleDelete(item.id)}>🗑️ Delete</button>
+                  <button onClick={() => handleDelete(item.id)}>
+                    🗑️ Delete
+                  </button>
                 </td>
               </tr>
             ))}

@@ -32,8 +32,8 @@ const Dashboard = () => {
       </div>
       </div>
 
-      <h2 className="dashboard-section-title">Menu Management</h2>
-      <MenuItemTable restaurantId={restaurantId} restaurantName={restaurantName} />
+     
+      <MenuItemTable restaurantId={restaurantId} restaurantName={restaurantName} showAddForm={false} />
       
     </div>
   );

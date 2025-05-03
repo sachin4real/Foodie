@@ -1,13 +1,15 @@
 import React, { useState } from "react";
 import axios from "axios";
-import "../../styles/g_AddMenuItemForm.css"
+import "../../styles/g_AddMenuItemForm.css";
 
 const AddMenuItemForm = ({ restaurantId, restaurantName }) => {
+  const resolvedRestaurantName =
+    restaurantName || localStorage.getItem("restaurantName");
   const [menuItem, setMenuItem] = useState({
     name: "",
     description: "",
     price: "",
-    imagePath: "", 
+    imagePath: "",
   });
 
   const handleChange = (e) => {
@@ -20,16 +22,16 @@ const AddMenuItemForm = ({ restaurantId, restaurantName }) => {
 
     try {
       const cleanedPrice = menuItem.price.replace(/[^\d]/g, ""); // removes Rs. and any symbols
-    const priceAsNumber = parseFloat(cleanedPrice); // convert to number
+      const priceAsNumber = parseFloat(cleanedPrice); // convert to number
 
-    const newItem = {
-      ...menuItem,
-      restaurantId,
-      restaurantName,
-      price: priceAsNumber,
-    };
- console.log("restaurantName=",restaurantName);
-       await axios.post("http://localhost:8081/api/menu/add", newItem);
+      const newItem = {
+        ...menuItem,
+        restaurantId,
+        restaurantName: resolvedRestaurantName,
+        price: priceAsNumber,
+      };
+      console.log("restaurantName=", restaurantName);
+      await axios.post("http://localhost:8081/api/menu/add", newItem);
       alert("Menu item added successfully!");
       setMenuItem({ name: "", description: "", price: "", imagePath: "" });
     } catch (err) {

@@ -1,10 +1,10 @@
-// RiderDashboardPage.js
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect } from 'react';
 import { getAssignedDeliveries } from '../../services/api';
 import RiderNotification from '../../components/RiderNotification/RiderNotification';
 import { Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend, ResponsiveContainer } from 'recharts';
 import { jwtDecode } from 'jwt-decode';
 import axios from 'axios';
+import { Client } from '@stomp/stompjs';
 
 const RiderDashboardPage = () => {
   const [deliveries, setDeliveries] = useState([]);
@@ -14,6 +14,7 @@ const RiderDashboardPage = () => {
   const [timer, setTimer] = useState(60);
   const [toast, setToast] = useState({ show: false, message: '' });
   const [darkMode, setDarkMode] = useState(false);
+  const [notifications, setNotifications] = useState([]);
 
   let riderEmail = "";
   try {
@@ -28,6 +29,7 @@ const RiderDashboardPage = () => {
 
   useEffect(() => {
     fetchDeliveries();
+    connectWebSocket(); // Connect WebSocket after the component mounts
   }, []);
 
   const fetchDeliveries = async () => {
@@ -91,6 +93,31 @@ const RiderDashboardPage = () => {
     setTimeout(() => {
       setToast({ show: false, message: '' });
     }, 3000);
+  };
+
+  // WebSocket connection
+  const connectWebSocket = () => {
+    const client = new Client({
+      brokerURL: 'ws://localhost:8083/ws',  // WebSocket URL of your backend
+      onConnect: () => {
+        console.log('WebSocket connected');
+        client.subscribe('/topic/delivery', (message) => {
+          const deliveryNotification = JSON.parse(message.body);
+          setNotifications((prevNotifications) => [
+            ...prevNotifications,
+            deliveryNotification,
+          ]);
+        });
+      },
+      onDisconnect: () => {
+        console.log('WebSocket disconnected');
+      },
+      debug: (str) => {
+        console.log(str);
+      },
+    });
+
+    client.activate();
   };
 
   const totalDelivered = deliveries.filter(d => d.status === "DELIVERED").length;
@@ -169,21 +196,19 @@ const RiderDashboardPage = () => {
 
         </div>
 
-        <div className="text-center">
-          
-        </div>
-
         <DashboardChart title="📦 Delivery Status" data={deliveryStatusChart} dataKey="value" fill="#38bdf8" labelKey="name" />
         <DashboardChart title="📈 Weekly Earnings" data={weeklyEarnings} dataKey="earnings" fill="#4ade80" labelKey="date" />
 
-        {showNotification && tempDelivery && (
+        {/* Display notifications */}
+        {notifications.length > 0 && notifications.map((notification, index) => (
           <RiderNotification
-            delivery={tempDelivery}
+            key={index}
+            delivery={notification}
             onClose={handleDeclineDelivery}
             onAccept={handleAcceptDelivery}
             timer={timer}
           />
-        )}
+        ))}
 
         {toast.show && (
           <div className="fixed bottom-8 right-8 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg">
