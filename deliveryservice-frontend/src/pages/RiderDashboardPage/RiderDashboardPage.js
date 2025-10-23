@@ -1,53 +1,110 @@
-import React, { useState, useEffect } from 'react';
-import { getAssignedDeliveries } from '../../services/api';
-import RiderNotification from '../../components/RiderNotification/RiderNotification';
-import { Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend, ResponsiveContainer } from 'recharts';
+// src/pages/RiderDashboardPage/RiderDashboardPage.js
+import React, { useEffect, useState, useRef, useMemo } from 'react';
+import {
+  getAssignedDeliveries,
+  acknowledgeAssignment,
+  getMe,
+  setOnlineStatus,
+  updateMyLocation
+} from '../../services/api';
+
+
+import {
+  Tooltip,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Legend,
+  ResponsiveContainer,
+  AreaChart,
+  Area
+} from 'recharts';
 import { jwtDecode } from 'jwt-decode';
-import axios from 'axios';
 import { Client } from '@stomp/stompjs';
+import { Link } from 'react-router-dom';
 
 const RiderDashboardPage = () => {
   const [deliveries, setDeliveries] = useState([]);
   const [loading, setLoading] = useState(true);
+
   const [showNotification, setShowNotification] = useState(false);
   const [tempDelivery, setTempDelivery] = useState(null);
   const [timer, setTimer] = useState(60);
+
   const [toast, setToast] = useState({ show: false, message: '' });
   const [darkMode, setDarkMode] = useState(false);
-  const [notifications, setNotifications] = useState([]);
+  const [online, setOnline] = useState(false);
+  const geoTimer = useRef(null);
 
-  let riderEmail = "";
+  let riderEmail = '';
   try {
     const token = localStorage.getItem('riderToken');
-    if (token) {
-      const decoded = jwtDecode(token);
-      riderEmail = decoded.sub;
-    }
-  } catch (error) {
-    console.error('Error decoding token', error);
-  }
+    if (token) riderEmail = jwtDecode(token).sub;
+  } catch {}
 
   useEffect(() => {
-    fetchDeliveries();
-    connectWebSocket(); // Connect WebSocket after the component mounts
+    bootstrap();
+    connectWebSocket();
+    // eslint-disable-next-line
   }, []);
 
-  const fetchDeliveries = async () => {
+  useEffect(() => {
+    if (online) {
+      pingGeo();
+      geoTimer.current = setInterval(pingGeo, 20000);
+    } else if (geoTimer.current) {
+      clearInterval(geoTimer.current);
+      geoTimer.current = null;
+    }
+    return () => { if (geoTimer.current) clearInterval(geoTimer.current); };
+    // eslint-disable-next-line
+  }, [online]);
+
+  const pingGeo = () => {
+    if (!navigator.geolocation) return;
+    navigator.geolocation.getCurrentPosition(
+      (pos) => updateMyLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude }).catch(()=>{}),
+      () => {}
+    );
+  };
+
+  const bootstrap = async () => {
     try {
-      const response = await getAssignedDeliveries(riderEmail);
-      setDeliveries(response.data);
-      setLoading(false);
-    } catch (error) {
-      console.error('Error fetching deliveries', error);
+      const me = await getMe().then(r => r.data).catch(()=>null);
+      if (me?.status !== undefined) setOnline(!!me.status);
+      await fetchDeliveries();
+    } finally {
       setLoading(false);
     }
   };
 
+  const fetchDeliveries = async () => {
+    try {
+      const response = await getAssignedDeliveries(riderEmail);
+      setDeliveries(response.data || []);
+    } catch (error) {
+      console.error('Error fetching deliveries', error);
+    }
+  };
+
+  const toggleOnline = async () => {
+    try {
+      await setOnlineStatus(!online);
+      setOnline(!online);
+      showToast(!online ? '🟢 You are online — you can receive jobs' : '⚪ You are offline');
+    } catch {
+      showToast('Could not change status');
+    }
+  };
+
   const startTimerCountdown = () => {
-    const countdown = setInterval(() => {
-      setTimer(prev => {
+    setTimer(60);
+    const id = setInterval(() => {
+      setTimer((prev) => {
         if (prev <= 1) {
-          clearInterval(countdown);
+          clearInterval(id);
           setShowNotification(false);
           setTempDelivery(null);
         }
@@ -56,159 +113,180 @@ const RiderDashboardPage = () => {
     }, 1000);
   };
 
-  const handleAssignDelivery = async () => {
-    const newDelivery = {
-      orderId: "ORD12345",
-      customerId: "1234412",
-      deliveryPersonnelId: riderEmail,
-      status: "ASSIGNED",
-      location: "Kalutara, Nagoda",
-      customerAddress: "Kalutara, Panadura",
-      deliveryTime: new Date('2025-04-28T10:00:00'),
-      orderAmount: 750.00,
-    };
-    setTempDelivery(newDelivery);
-    setShowNotification(true);
-    startTimerCountdown();
-  };
-
   const handleAcceptDelivery = async () => {
     try {
-      await axios.post('http://localhost:8083/deliveries', tempDelivery);
-      fetchDeliveries();
+      if (!tempDelivery?.deliveryId) return;
+      await acknowledgeAssignment(tempDelivery.deliveryId);
       setShowNotification(false);
-      showToast("✅ Delivery Accepted!");
+      setTempDelivery(null);
+      showToast('✅ Delivery accepted');
+      fetchDeliveries();
     } catch (error) {
       console.error('Error accepting delivery', error);
     }
   };
 
-  const handleDeclineDelivery = () => {
-    setTempDelivery(null);
-    setShowNotification(false);
+  const connectWebSocket = () => {
+    const client = new Client({
+      brokerURL: 'ws://localhost:8083/ws',
+      reconnectDelay: 5000,
+      onConnect: () => {
+        client.subscribe('/topic/delivery', (msg) => {
+          try {
+            const payload = JSON.parse(msg.body);
+            setTempDelivery(payload);
+            setShowNotification(true);
+            startTimerCountdown();
+            fetchDeliveries();
+          } catch {}
+        });
+      },
+    });
+    client.activate();
   };
 
   const showToast = (message) => {
     setToast({ show: true, message });
-    setTimeout(() => {
-      setToast({ show: false, message: '' });
-    }, 3000);
+    setTimeout(() => setToast({ show: false, message: '' }), 2500);
   };
 
-  // WebSocket connection
-  const connectWebSocket = () => {
-    const client = new Client({
-      brokerURL: 'ws://localhost:8083/ws',  // WebSocket URL of your backend
-      onConnect: () => {
-        console.log('WebSocket connected');
-        client.subscribe('/topic/delivery', (message) => {
-          const deliveryNotification = JSON.parse(message.body);
-          setNotifications((prevNotifications) => [
-            ...prevNotifications,
-            deliveryNotification,
-          ]);
-        });
-      },
-      onDisconnect: () => {
-        console.log('WebSocket disconnected');
-      },
-      debug: (str) => {
-        console.log(str);
-      },
-    });
+  // ---------- derived metrics ----------
+  const rupees = (usd) => `Rs.${(usd * 300).toFixed(2)}`;
 
-    client.activate();
-  };
-
-  const totalDelivered = deliveries.filter(d => d.status === "DELIVERED").length;
-  const totalOngoing = deliveries.filter(d => d.status !== "DELIVERED").length;
-  const totalEarnings = deliveries
-    .filter(d => d.status === "DELIVERED")
-    .reduce((sum, d) => sum + (d.orderAmount * 0.05), 0)
-    .toFixed(2);
+  const totalDelivered = deliveries.filter(d => d.status === 'DELIVERED').length;
+  const totalOngoing   = deliveries.filter(d => d.status !== 'DELIVERED').length;
+  const totalEarningsUSD  = deliveries
+    .filter(d => d.status === 'DELIVERED')
+    .reduce((sum, d) => sum + (d.orderAmount * 0.05), 0);
 
   const today = new Date();
-  const todaysEarnings = deliveries
+  const todaysEarningsUSD = deliveries
     .filter(d => {
-      const deliveryDate = new Date(d.deliveryTime);
-      return d.status === "DELIVERED" &&
-        deliveryDate.getDate() === today.getDate() &&
-        deliveryDate.getMonth() === today.getMonth() &&
-        deliveryDate.getFullYear() === today.getFullYear();
+      const dt = new Date(d.deliveryTime);
+      return d.status === 'DELIVERED'
+        && dt.getDate() === today.getDate()
+        && dt.getMonth() === today.getMonth()
+        && dt.getFullYear() === today.getFullYear();
     })
-    .reduce((sum, d) => sum + (d.orderAmount * 0.05), 0)
-    .toFixed(2);
+    .reduce((s, d) => s + (d.orderAmount * 0.05), 0);
 
-  const deliveryStatusChart = [
-    { name: 'Assigned', value: deliveries.filter(d => d.status === 'ASSIGNED').length },
+  const statusChart = useMemo(() => ([
+    { name: 'Assigned',  value: deliveries.filter(d => d.status === 'ASSIGNED').length },
     { name: 'Picked Up', value: deliveries.filter(d => d.status === 'PICKED_UP').length },
     { name: 'Delivered', value: deliveries.filter(d => d.status === 'DELIVERED').length },
-  ];
+  ]), [deliveries]);
 
-  const weeklyEarnings = (() => {
-    let result = [];
+  const weeklyEarnings = useMemo(() => {
+    const out = [];
     for (let i = 6; i >= 0; i--) {
       const day = new Date();
       day.setDate(today.getDate() - i);
-
-      const earnings = deliveries
+      const sum = deliveries
         .filter(d => {
-          const deliveryDate = new Date(d.deliveryTime);
-          return d.status === "DELIVERED" &&
-            deliveryDate.getDate() === day.getDate() &&
-            deliveryDate.getMonth() === day.getMonth() &&
-            deliveryDate.getFullYear() === day.getFullYear();
+          const dt = new Date(d.deliveryTime);
+          return d.status === 'DELIVERED'
+            && dt.getDate() === day.getDate()
+            && dt.getMonth() === day.getMonth()
+            && dt.getFullYear() === day.getFullYear();
         })
-        .reduce((sum, d) => sum + (d.orderAmount * 0.05), 0);
-
-      result.push({
+        .reduce((s, d) => s + (d.orderAmount * 0.05), 0);
+      out.push({
         date: day.toLocaleDateString('en-US', { weekday: 'short' }),
-        earnings: parseFloat(earnings.toFixed(2)),
+        earnings: +sum.toFixed(2),
       });
     }
-    return result;
-  })();
+    return out;
+  }, [deliveries]);
 
-  if (loading) {
-    return <div className="text-center text-xl mt-10 animate-pulse">Loading...</div>;
-  }
+  const activeJob = deliveries.find(d => d.status !== 'DELIVERED');
+
+  if (loading) return <div className="text-center text-xl mt-10 animate-pulse">Loading...</div>;
 
   return (
-    <div className={`${darkMode ? 'dark bg-gray-900 text-white' : 'bg-gradient-to-br from-blue-50 to-white'} min-h-screen flex flex-col`}>
-      <header className="bg-white dark:bg-gray-800 shadow-md sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto flex justify-between items-center p-4 space-x-6">
-          <nav className="space-x-6">
-            <a href="#dashboard" className="font-medium text-gray-600 dark:text-gray-300 hover:text-blue-600">Dashboard</a>
-            <a href="/rider/deliveries" className="font-medium text-gray-600 dark:text-gray-300 hover:text-blue-600">My Deliveries</a>
-          </nav>
-          <button onClick={() => setDarkMode(!darkMode)} className="bg-gray-200 dark:bg-gray-600 text-sm px-4 py-1 rounded-full">
-            {darkMode ? '☀️ Light' : '🌙 Dark'} Mode
-          </button>
-        </div>
-      </header>
+    <div className={`${darkMode ? 'dark bg-[#0b1220] text-white' : 'bg-gradient-to-br from-blue-50 to-white'} min-h-screen`}>
+      {/* Page content only (navbar comes from AppLayout) */}
+      <main className="max-w-7xl mx-auto px-5 py-6 space-y-8">
+        {/* Availability banner */}
+        <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className={`col-span-2 rounded-2xl p-5 border shadow ${online ? 'bg-gradient-to-r from-emerald-500/15 to-emerald-400/10 border-emerald-300/40' : 'bg-gradient-to-r from-gray-200/40 to-gray-100/20 border-gray-300/40'}`}>
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-sm uppercase tracking-wide text-gray-500 dark:text-gray-400">Availability</p>
+                <h2 className="text-2xl font-extrabold mt-1">{online ? 'You are Online' : 'You are Offline'}</h2>
+                <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
+                  {online ? 'You will receive new delivery requests.' : 'Go online to start receiving jobs.'}
+                </p>
+              </div>
+              <button
+                onClick={toggleOnline}
+                className={`px-4 py-2 rounded-xl font-semibold shadow ${online ? 'bg-emerald-500 text-white' : 'bg-gray-300 text-gray-900'}`}
+              >
+                {online ? 'Go Offline' : 'Go Online'}
+              </button>
+            </div>
+          </div>
 
-      <main className="flex-grow max-w-7xl mx-auto p-6 space-y-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <StatCard icon="📦" title="Deliveries Completed" value={totalDelivered} color="green" />
-          <StatCard icon="🛻" title="Ongoing Deliveries" value={totalOngoing} color="yellow" />
-          <StatCard icon="💸" title="Total Earnings" value={`Rs.${(totalEarnings * 300).toFixed(2)}`} color="blue" />
-          <StatCard icon="📅" title="Today's Earnings" value={`Rs.${(todaysEarnings * 300).toFixed(2)}`} color="indigo" />
+          <div className="rounded-2xl p-5 border shadow bg-white/70 dark:bg-white/5 dark:border-white/10">
+            <p className="text-sm uppercase tracking-wide text-gray-500 dark:text-gray-400">Rating & Cancellations</p>
+            <div className="mt-3 flex items-center justify-between">
+              <Metric label="Rating" value="4.9" sub="/ 5.0" />
+              <div className="w-px h-10 bg-gray-200 dark:bg-white/10" />
+              <Metric label="Cancel Rate" value="1.2%" />
+            </div>
+          </div>
+        </section>
 
-        </div>
+        {/* Stat cards */}
+        <section className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+          <StatCard icon="📦" title="Deliveries Completed" value={totalDelivered} gradient="from-emerald-500 to-teal-500" />
+          <StatCard icon="🚚" title="Ongoing Deliveries" value={totalOngoing} gradient="from-amber-500 to-orange-500" />
+          <StatCard icon="💸" title="Total Earnings" value={rupees(totalEarningsUSD)} gradient="from-blue-600 to-indigo-600" />
+          <StatCard icon="📅" title="Today's Earnings" value={rupees(todaysEarningsUSD)} gradient="from-indigo-600 to-violet-600" />
+        </section>
 
-        <DashboardChart title="📦 Delivery Status" data={deliveryStatusChart} dataKey="value" fill="#38bdf8" labelKey="name" />
-        <DashboardChart title="📈 Weekly Earnings" data={weeklyEarnings} dataKey="earnings" fill="#4ade80" labelKey="date" />
+        {/* Active job + quick actions + recent activity */}
+        <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <ActiveJobCard job={activeJob} />
+          <QuickActionsCard />
+          <RecentActivity deliveries={deliveries} />
+        </section>
 
-        {/* Display notifications */}
-        {notifications.length > 0 && notifications.map((notification, index) => (
-          <RiderNotification
-            key={index}
-            delivery={notification}
-            onClose={handleDeclineDelivery}
-            onAccept={handleAcceptDelivery}
-            timer={timer}
-          />
-        ))}
+        {/* Charts */}
+        <section className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <ChartPanel title="📦 Delivery Status">
+            <ResponsiveContainer width="100%" height={260}>
+              <BarChart data={statusChart}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#404858" />
+                <XAxis dataKey="name" stroke="#cbd5e1" />
+                <YAxis allowDecimals={false} stroke="#cbd5e1" />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="value" />
+              </BarChart>
+            </ResponsiveContainer>
+          </ChartPanel>
+
+          <ChartPanel title="📈 Weekly Earnings">
+            <ResponsiveContainer width="100%" height={260}>
+              <AreaChart data={weeklyEarnings}>
+                <defs>
+                  <linearGradient id="earn" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopOpacity={0.6}/>
+                    <stop offset="95%" stopOpacity={0.05}/>
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="#404858" />
+                <XAxis dataKey="date" stroke="#cbd5e1" />
+                <YAxis stroke="#cbd5e1" />
+                <Tooltip />
+                <Area type="monotone" dataKey="earnings" strokeWidth={2} fillOpacity={1} fill="url(#earn)" />
+              </AreaChart>
+            </ResponsiveContainer>
+          </ChartPanel>
+        </section>
+
+        {/* WS popup for “assignment” */}
+        
 
         {toast.show && (
           <div className="fixed bottom-8 right-8 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg">
@@ -217,46 +295,108 @@ const RiderDashboardPage = () => {
         )}
       </main>
 
-      <footer className="bg-white dark:bg-gray-800 border-t text-center text-gray-500 dark:text-gray-400 text-sm py-6">
+      <footer className="text-center text-gray-500 dark:text-gray-400 text-sm py-8">
         © 2025 Foody Express
       </footer>
     </div>
   );
 };
 
-const StatCard = ({ title, value, color, icon }) => (
-  <div className={`p-6 rounded-2xl shadow-lg text-center hover:shadow-2xl transition bg-opacity-80 ${
-    color === 'green' ? 'bg-green-200 dark:bg-green-800' :
-    color === 'yellow' ? 'bg-yellow-200 dark:bg-yellow-700' :
-    color === 'blue' ? 'bg-blue-200 dark:bg-blue-800' :
-    color === 'indigo' ? 'bg-indigo-200 dark:bg-indigo-800' :
-    'bg-gray-200 dark:bg-gray-700'
-  }`}>
-    <div className="text-4xl mb-2">{icon}</div>
-    <h3 className="font-bold text-lg mt-2 dark:text-gray-100">{title}</h3>
-    <p className="text-3xl font-extrabold dark:text-white">{value}</p>
+/* ---------- building blocks ---------- */
+
+const StatCard = ({ title, value, icon, gradient }) => (
+  <div className={`rounded-2xl p-5 shadow border bg-gradient-to-tr ${gradient} text-white`}>
+    <div className="text-3xl mb-2">{icon}</div>
+    <div className="text-sm uppercase tracking-wide opacity-80">{title}</div>
+    <div className="text-3xl font-extrabold mt-1">{value}</div>
   </div>
 );
 
-const DashboardChart = ({ title, data, dataKey, fill, labelKey }) => {
-  const isDark = document.documentElement.classList.contains('dark');
+const Metric = ({ label, value, sub }) => (
+  <div>
+    <div className="text-3xl font-extrabold">{value}<span className="text-base font-medium opacity-70">{sub}</span></div>
+    <div className="text-xs mt-1 opacity-70">{label}</div>
+  </div>
+);
+
+const ChartPanel = ({ title, children }) => (
+  <div className="rounded-2xl p-5 shadow border bg-white/70 dark:bg-white/5 dark:border-white/10">
+    <h3 className="text-lg font-bold mb-4">{title}</h3>
+    {children}
+  </div>
+);
+
+const ActiveJobCard = ({ job }) => {
+  if (!job) {
+    return (
+      <div className="rounded-2xl p-5 shadow border bg-white/70 dark:bg-white/5 dark:border-white/10">
+        <h3 className="text-lg font-bold mb-3">🛵 Active Job</h3>
+        <p className="text-gray-600 dark:text-gray-300">No active jobs right now. Go online to receive new assignments.</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg hover:shadow-2xl transition">
-      <h2 className="text-2xl font-bold text-center mb-6 text-gray-800 dark:text-gray-200">{title}</h2>
-      <ResponsiveContainer width="100%" height={250}>
-        <BarChart data={data}>
-          <CartesianGrid strokeDasharray="3 3" stroke={isDark ? '#444' : '#ccc'} />
-          <XAxis dataKey={labelKey} stroke={isDark ? '#ddd' : '#333'} />
-          <YAxis allowDecimals={false} stroke={isDark ? '#ddd' : '#333'} />
-          <Tooltip contentStyle={{ backgroundColor: isDark ? '#333' : '#fff', borderColor: isDark ? '#555' : '#ccc' }} />
-          <Legend />
-          <Bar dataKey={dataKey} fill={fill} />
-        </BarChart>
-      </ResponsiveContainer>
+    <div className="rounded-2xl p-5 shadow border bg-white/70 dark:bg-white/5 dark:border-white/10">
+      <h3 className="text-lg font-bold mb-3">🛵 Active Job</h3>
+      <div className="space-y-1 text-sm">
+        <div><b>Order:</b> {job.orderId}</div>
+        <div><b>Restaurant:</b> {job.location}</div>
+        <div><b>Customer:</b> {job.customerAddress}</div>
+        <div><b>Status:</b> <span className={`font-semibold ${job.status === 'DELIVERED' ? 'text-emerald-500' : 'text-amber-500'}`}>{job.status}</span></div>
+      </div>
+      <div className="mt-4 flex gap-3">
+        <Link to="/rider/deliveries" className="px-4 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700">Open Deliveries</Link>
+        {job.status === 'ASSIGNED' && (
+          <Link to="/rider/deliveries" className="px-4 py-2 rounded-xl bg-amber-500 text-white hover:bg-amber-600">Pick Up</Link>
+        )}
+      </div>
     </div>
   );
 };
 
+const QuickActionsCard = () => (
+  <div className="rounded-2xl p-5 shadow border bg-white/70 dark:bg-white/5 dark:border-white/10">
+    <h3 className="text-lg font-bold mb-3">⚡ Quick Actions</h3>
+    <div className="grid grid-cols-2 gap-3">
+      <Link to="/rider/deliveries" className="px-4 py-2 rounded-xl border hover:bg-black/5 dark:hover:bg-white/10 text-center">My Deliveries</Link>
+      <button onClick={() => window.location.reload()} className="px-4 py-2 rounded-xl border hover:bg-black/5 dark:hover:bg-white/10">Refresh</button>
+      <Link to="/rider/dashboard" className="px-4 py-2 rounded-xl border hover:bg-black/5 dark:hover:bg-white/10 text-center">Dashboard</Link>
+      <Link to="/riders/login" className="px-4 py-2 rounded-xl border hover:bg-black/5 dark:hover:bg-white/10 text-center">Switch Account</Link>
+    </div>
+  </div>
+);
 
+const RecentActivity = ({ deliveries }) => {
+  const items = [...deliveries]
+    .sort((a, b) => new Date(b.deliveryTime) - new Date(a.deliveryTime))
+    .slice(0, 6);
+
+  return (
+    <div className="rounded-2xl p-5 shadow border bg-white/70 dark:bg-white/5 dark:border-white/10">
+      <h3 className="text-lg font-bold mb-3">🧾 Recent Activity</h3>
+      {items.length === 0 ? (
+        <p className="text-gray-600 dark:text-gray-300">No recent activity.</p>
+      ) : (
+        <ul className="divide-y divide-gray-200 dark:divide-white/10">
+          {items.map(d => (
+            <li key={d.id} className="py-3 flex items-center justify-between">
+              <div className="text-sm">
+                <div className="font-semibold">{d.status.replace('_', ' ')}</div>
+                <div className="text-xs opacity-70">{new Date(d.deliveryTime).toLocaleString()}</div>
+              </div>
+              <div className="text-right text-sm">
+                <div className="opacity-70">Order {d.orderId}</div>
+                <div className={`font-semibold ${d.status === 'DELIVERED' ? 'text-emerald-500' : 'text-amber-500'}`}>
+                  {d.status}
+                </div>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+};
 
 export default RiderDashboardPage;

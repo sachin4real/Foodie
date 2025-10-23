@@ -9,7 +9,7 @@ const Dashboard = () => {
 
   // Example stats – replace with real data as needed
   const stats = [
-    { label: "Today's Orders", value: 24 },
+    { label: "Today's Orders", value: 14 },
     { label: "Active Menu Items", value: 42 },
     { label: "Revenue (Today)", value: "LKR 7500" },
   ];

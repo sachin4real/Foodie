@@ -1,0 +1,21 @@
+.assign-btn {
+  background: #ff8a4b;
+  color: #fff;
+  border: 0;
+  padding: 6px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.assign-btn:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
+
+.status-badge {
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #eee;
+}
+.status-badge.pending { background: #d1fae5; color: #065f46; }
+.status-badge.assigned { background: #dbeafe; color: #1e40af; }

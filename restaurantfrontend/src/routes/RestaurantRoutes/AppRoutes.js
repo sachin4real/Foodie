@@ -3,7 +3,6 @@ import React from "react";
 import { Routes, Route } from "react-router-dom";
 import AddRestaurantForm from "../../components/Restaurants/AddRestaurantForm";
 import OwnerRoutes from "./OwnerRoutes";
-import AdminRoutes from "../AdminRoutes/AdminRoutes";
 import RestaurantLogin from "../../components/Restaurants/RestaurantLogin";
 
 const AppRoutes = () => {
@@ -13,11 +12,7 @@ const AppRoutes = () => {
       
       {/* Route for AddRestaurantForm */}
       <Route path="/createrestaurant" element={<AddRestaurantForm />} />
-
-     
-
       <Route path="/owner/*" element={<OwnerRoutes />} />
-      <Route path="/admin/*" element={<AdminRoutes />} />
     </Routes>
   );
 };

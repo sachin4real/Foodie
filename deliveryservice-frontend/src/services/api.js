@@ -1,36 +1,47 @@
-// src/services/api.js
 import axios from 'axios';
 
-// Create a custom Axios instance with the backend base URL
-const api = axios.create({
-  baseURL: 'http://localhost:8083', // Your Spring Boot backend URL
-});
+const API_BASE = process.env.REACT_APP_DELIVERY_BASE || 'http://localhost:8083';
 
-// Function to register a rider
-export const registerRider = (riderData) => {
-    return api.post('/riders/register', riderData);
-  };
+export const api = axios.create({ baseURL: API_BASE });
 
-// Function to log in the rider
-export const loginRider = (riderData) => {
-    return api.post('/riders/login', riderData);
-  };
-
-// Example of an API call to get deliveries
-export const getDeliveries = () => {
-  return api.get('/deliveries'); // The '/deliveries' endpoint should return a list of deliveries
+// attach token automatically
+export const setAuthToken = (token) => {
+  if (token) api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+  else delete api.defaults.headers.common['Authorization'];
 };
 
-// Fetch assigned deliveries for a rider
-export const getAssignedDeliveries = (riderId) => {
-    return api.get(`/deliveries/rider/${riderId}`);
+// bootstrap token from storage on app load
+const init = () => {
+  try {
+    const t = localStorage.getItem('riderToken');
+    if (t) setAuthToken(t);
+  } catch {}
 };
+init();
 
-// Update delivery status (picked up / delivered)
-export const updateDeliveryStatus = (deliveryId, status) => {
-    return api.put(`/deliveries/${deliveryId}/status`, null, {
-      params: { status },
-    });
-};
+/* ---------- Rider auth ---------- */
+export const registerRider = (riderData) => api.post('/riders/register', riderData);
+export const loginRider = (riderData) => api.post('/riders/login', riderData);
+export const getMe       = () => api.get('/riders/me'); // (recommended backend)
+export const setOnlineStatus = (online) => api.patch(`/riders/me/status`, null, { params: { online }});
+export const updateMyLocation = ({ lat, lng }) => api.put('/riders/me/location', { lat, lng });
 
+/* ---------- Deliveries ---------- */
+export const getDeliveries = () => api.get('/deliveries');
+export const getAssignedDeliveries = (email) => api.get(`/deliveries/rider/${encodeURIComponent(email)}`);
+export const updateDeliveryStatus = (deliveryId, status) => api.put(`/deliveries/${deliveryId}/status`, null, { params: { status } });
+export const acknowledgeAssignment = (deliveryId) => updateDeliveryStatus(deliveryId, 'PICKED_UP');
 
+// global 401 handler
+api.interceptors.response.use(
+  r => r,
+  err => {
+    if (err?.response?.status === 401) {
+      localStorage.removeItem('riderToken');
+      setAuthToken(null);
+      // soft redirect
+      if (window.location.pathname !== '/riders/login') window.location.href = '/riders/login';
+    }
+    return Promise.reject(err);
+  }
+);

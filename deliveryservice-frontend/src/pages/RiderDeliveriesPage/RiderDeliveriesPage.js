@@ -71,20 +71,7 @@ const RiderDeliveriesPage = () => {
   return (
     <div className={`${darkMode ? 'dark bg-gray-900 text-white' : 'bg-gradient-to-br from-blue-50 to-white'} min-h-screen flex flex-col`}>
       {/* Header with dark mode toggle */}
-      <header className="bg-white dark:bg-gray-800 shadow-md sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto flex justify-between items-center p-4 space-x-6">
-          <nav className="space-x-6">
-            <a href="/rider/dashboard" className="font-medium text-gray-600 dark:text-gray-300 hover:text-blue-600">Dashboard</a>
-            <a href="#deliveries" className="font-medium text-blue-600 dark:text-white hover:text-blue-600">My Deliveries</a>
-          </nav>
-          <button
-            onClick={() => setDarkMode(!darkMode)}
-            className="bg-gray-200 dark:bg-gray-600 text-sm px-4 py-1 rounded-full"
-          >
-            {darkMode ? '☀️ Light' : '🌙 Dark'} Mode
-          </button>
-        </div>
-      </header>
+      
 
       {/* Main */}
       <main className="flex-grow max-w-7xl mx-auto p-6 space-y-10 relative">

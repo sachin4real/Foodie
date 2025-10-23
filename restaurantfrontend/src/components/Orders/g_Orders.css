@@ -1,0 +1,14 @@
+/* --- assign modal lightweight styles --- */
+.assign-overlay{position:fixed;inset:0;background:rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;z-index:50}
+.assign-card{background:#fff;border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.15);width:min(560px,92vw);padding:20px}
+.assign-help{color:#6b7280;margin-top:-6px}
+.assign-list{max-height:320px;overflow:auto;margin:14px 0;border:1px solid #eee;border-radius:10px;padding:8px}
+.assign-row{display:flex;gap:12px;align-items:start;padding:10px;border-radius:10px;cursor:pointer}
+.assign-row:hover{background:#f8fafc}
+.assign-name{font-weight:600}
+.assign-sub{font-size:12px;color:#6b7280}
+.assign-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:10px}
+.btn-primary{background:#111827;color:#fff;border:none;border-radius:10px;padding:10px 14px}
+.btn-primary:disabled{opacity:.5}
+.btn-secondary{background:#e5e7eb;border:none;border-radius:10px;padding:10px 14px}
+.muted{color:#9ca3af}
